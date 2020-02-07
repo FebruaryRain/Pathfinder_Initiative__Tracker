@@ -92,18 +92,33 @@ def create_new_combat_session(): # Needs a check to ensure that there are not tw
     combatant_dict = {}
     num_combatants = how_many_combatants()
     for i in range(0, num_combatants):
-        bclear_to_ask_for_next_combatant = True
-        while bclear_to_ask_for_next_combatant:
-            print("Combatant", (i+1))
-            combatant_name = ask_for_combatant_name()
-            combatant_initiative = ask_for_combatant_initiative(combatant_name)
-            combatant_dict[combatant_name] = combatant_initiative
-            bclear_to_ask_for_next_combatant = confirmation()
-            #if there_are_no_combatants_of_that_name_present(combatant_dict, combatant_name):
-            #    bclear_to_ask_for_next_combatant = False
-            if bclear_to_ask_for_next_combatant:
-                combatant_dict.popitem()
+        combatant_dict = get_the_list_of_combatants_with_initiatives(combatant_dict, i)
     return combatant_dict
+
+
+def get_the_list_of_combatants_with_initiatives(combatant_dict, i):
+    bask_for_this_combatant = True
+    buser_unhappy = True
+    while bask_for_this_combatant or buser_unhappy:
+        print("Combatant", (i+1))
+        combatant_name = ask_for_combatant_name()
+        combatant_initiative = ask_for_combatant_initiative(combatant_name)
+
+        if there_are_no_combatants_of_that_name_present(combatant_dict, combatant_name): # True if no duplicates
+            bask_for_this_combatant = False # Proceed to the next user
+            combatant_dict[combatant_name] = combatant_initiative
+            buser_unhappy = confirmation() # False when happy
+            if buser_unhappy:
+                combatant_dict.popitem()
+        else:
+            print(" **** Please ensure that you do not enter two combatants with the same name. ****")
+            bask_for_this_combatant = True
+            buser_unhappy = True
+        
+    return combatant_dict
+
+
+#def get_combatant_name_and_intiative():
 
 
 #####
@@ -200,9 +215,9 @@ def ties(combatant_list, initiative_list):
 
 def there_are_no_combatants_of_that_name_present(combatant_dict, combatant_name):
     if combatant_name in combatant_dict:
-        return True
-    else: 
         return False
+    else: 
+        return True
 
 def display_unknown_command_message():
     print("I'm sorry, I don't recognise that command. Type 'help' for information on Keywords")
